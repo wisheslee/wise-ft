@@ -10,8 +10,9 @@ class ImageEncoder(torch.nn.Module):
     def __init__(self, args, keep_lang=False):
         super().__init__()
 
-        self.model, self.train_preprocess, self.val_preprocess = clip.load(
-            args.model, args.device, jit=False)
+        self.model, self.val_preprocess = clip.load(args.model, args.device, jit=False)
+        self.model = self.model.float()
+        self.train_preprocess = self.val_preprocess 
         
         self.cache_dir = args.cache_dir
 
@@ -47,7 +48,7 @@ class ClassificationHead(torch.nn.Linear):
     def forward(self, inputs):
         if self.normalize:
             inputs = inputs / inputs.norm(dim=-1, keepdim=True)
-        return super().forward(inputs)
+        return super().forward(inputs.float())
 
     def save(self, filename):
         print(f'Saving classification head to {filename}')
